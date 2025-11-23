@@ -1,0 +1,17 @@
+/* Mobile viewport fix for Safari */
+@supports (height: 100dvh) {
+    @media (max-width: 768px) {
+        .mobile-vh-fix {
+            height: 100dvh !important;
+            min-height: 100dvh !important;
+        }
+    }
+}
+
+/* Fallback for older browsers */
+@media (max-width: 768px) {
+    .mobile-vh-fix {
+        height: calc(var(--vh, 1vh) * 100) !important;
+        min-height: calc(var(--vh, 1vh) * 100) !important;
+    }
+}

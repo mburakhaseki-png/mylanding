@@ -82,3 +82,18 @@ a {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
+
+/* Mobile Viewport Height Fix for Safari */
+@media (max-width: 768px) {
+
+  html,
+  body {
+    height: 100dvh;
+    height: -webkit-fill-available;
+  }
+
+  /* Fallback using CSS variable */
+  html {
+    height: calc(var(--vh, 1vh) * 100);
+  }
+}
