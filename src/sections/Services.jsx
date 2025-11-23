@@ -46,16 +46,16 @@ export const ServiceItem = ({ data, index }) => {
                 overflow: 'hidden'
             }}
         >
-            {/* Background Gradient */}
+            {/* Background Gradient - Simplified on mobile */}
             <div style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
                 height: '100%',
-                background: data.gradient,
-                opacity: 0.6,
-                filter: 'blur(50px)',
+                background: isMobile ? data.color + '15' : data.gradient,
+                opacity: isMobile ? 0.3 : 0.6,
+                filter: isMobile ? 'none' : 'blur(50px)',
                 zIndex: 0
             }} />
 
@@ -76,15 +76,15 @@ export const ServiceItem = ({ data, index }) => {
             }}>
                 {/* Icon / Visual */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8 }}
+                    initial={isMobile ? false : { opacity: 0, scale: 0.8 }}
+                    whileInView={isMobile ? false : { opacity: 1, scale: 1 }}
+                    transition={isMobile ? {} : { duration: 0.8 }}
                     style={{
                         flex: 1,
                         display: 'flex',
                         justifyContent: 'center',
                         color: data.color,
-                        filter: `drop-shadow(0 0 30px ${data.color})`
+                        filter: isMobile ? 'none' : `drop-shadow(0 0 30px ${data.color})`
                     }}
                 >
                     {data.icon}
@@ -92,9 +92,9 @@ export const ServiceItem = ({ data, index }) => {
 
                 {/* Text */}
                 <motion.div
-                    initial={{ opacity: 0, x: index % 2 === 0 ? 50 : -50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
+                    initial={isMobile ? false : { opacity: 0, x: index % 2 === 0 ? 50 : -50 }}
+                    whileInView={isMobile ? false : { opacity: 1, x: 0 }}
+                    transition={isMobile ? {} : { duration: 0.8, delay: 0.2 }}
                     style={{ flex: 1 }}
                 >
                     <h2 style={{
