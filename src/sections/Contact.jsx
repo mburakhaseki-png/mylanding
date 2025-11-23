@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Phone } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const Contact = () => {
     const [showForm, setShowForm] = useState(false);
@@ -11,6 +12,8 @@ const Contact = () => {
         phone: '',
         email: ''
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState(null);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -18,13 +21,54 @@ const Contact = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form submitted:', formData);
-        setShowForm(false);
+        setIsSubmitting(true);
+        setSubmitStatus(null);
+
+        try {
+            // Check if Supabase is configured
+            if (!supabase) {
+                console.log('Form data (Supabase not configured):', formData);
+                setSubmitStatus('success');
+                setFormData({ name: '', field: '', phone: '', email: '' });
+
+                setTimeout(() => {
+                    setShowForm(false);
+                    setSubmitStatus(null);
+                }, 2000);
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('contacts')
+                .insert([
+                    {
+                        name: formData.name,
+                        field: formData.field,
+                        phone: formData.phone,
+                        email: formData.email,
+                        created_at: new Date().toISOString()
+                    }
+                ]);
+
+            if (error) throw error;
+
+            setSubmitStatus('success');
+            setFormData({ name: '', field: '', phone: '', email: '' });
+
+            setTimeout(() => {
+                setShowForm(false);
+                setSubmitStatus(null);
+            }, 2000);
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            setSubmitStatus('error');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    // Close form on scroll
     useEffect(() => {
         if (!showForm) return;
 
@@ -53,7 +97,6 @@ const Contact = () => {
             scrollSnapAlign: 'start',
             scrollSnapStop: 'always'
         }}>
-            {/* Animated Background */}
             <div style={{
                 position: 'absolute',
                 inset: 0,
@@ -62,7 +105,6 @@ const Contact = () => {
                 animation: 'pulse 4s ease-in-out infinite'
             }} />
 
-            {/* Noise Texture */}
             <div style={{
                 position: 'absolute',
                 inset: 0,
@@ -73,7 +115,6 @@ const Contact = () => {
 
             <AnimatePresence mode="wait">
                 {!showForm ? (
-                    // Main Button
                     <motion.button
                         key="button"
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -108,7 +149,6 @@ const Contact = () => {
                             e.target.style.boxShadow = '0 0 60px rgba(255,0,102,0.5), 0 0 100px rgba(0,255,157,0.3)';
                         }}
                     >
-                        {/* Noise Overlay on Button */}
                         <div style={{
                             position: 'absolute',
                             inset: 0,
@@ -124,7 +164,6 @@ const Contact = () => {
                         </span>
                     </motion.button>
                 ) : (
-                    // Form - Smaller and Minimal
                     <motion.div
                         key="form"
                         initial={{ opacity: 0, y: 50 }}
@@ -146,13 +185,64 @@ const Contact = () => {
                     >
                         <h2 style={{
                             fontSize: '1.5rem',
-                            marginBottom: '1.5rem',
+                            marginBottom: '0.5rem',
                             color: '#fff',
                             fontWeight: '400',
                             textAlign: 'center'
                         }}>
-                            Hadi Konuşalım
+                            Sizi Arayalım
                         </h2>
+
+                        <a
+                            href="tel:05456119952"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem',
+                                fontSize: '1.1rem',
+                                color: '#00ff9d',
+                                textDecoration: 'none',
+                                marginBottom: '1.5rem',
+                                fontWeight: '600',
+                                transition: 'all 0.3s ease'
+                            }}
+                            onMouseEnter={(e) => e.target.style.color = '#00ffcc'}
+                            onMouseLeave={(e) => e.target.style.color = '#00ff9d'}
+                        >
+                            <Phone size={20} />
+                            0545 611 99 52
+                        </a>
+
+                        {submitStatus === 'success' && (
+                            <div style={{
+                                padding: '1rem',
+                                background: 'rgba(0, 255, 157, 0.1)',
+                                border: '1px solid rgba(0, 255, 157, 0.3)',
+                                borderRadius: '8px',
+                                color: '#00ff9d',
+                                textAlign: 'center',
+                                marginBottom: '1rem',
+                                fontSize: '0.9rem'
+                            }}>
+                                ✓ Mesajınız başarıyla gönderildi!
+                            </div>
+                        )}
+
+                        {submitStatus === 'error' && (
+                            <div style={{
+                                padding: '1rem',
+                                background: 'rgba(255, 0, 102, 0.1)',
+                                border: '1px solid rgba(255, 0, 102, 0.3)',
+                                borderRadius: '8px',
+                                color: '#ff0066',
+                                textAlign: 'center',
+                                marginBottom: '1rem',
+                                fontSize: '0.9rem'
+                            }}>
+                                ✗ Bir hata oluştu. Lütfen tekrar deneyin.
+                            </div>
+                        )}
 
                         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <input
@@ -161,6 +251,7 @@ const Contact = () => {
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
+                                disabled={isSubmitting}
                                 style={{
                                     width: '100%',
                                     padding: '0.8rem',
@@ -182,6 +273,7 @@ const Contact = () => {
                                 value={formData.field}
                                 onChange={(e) => setFormData({ ...formData, field: e.target.value })}
                                 required
+                                disabled={isSubmitting}
                                 style={{
                                     width: '100%',
                                     padding: '0.8rem',
@@ -203,6 +295,7 @@ const Contact = () => {
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                 required
+                                disabled={isSubmitting}
                                 style={{
                                     width: '100%',
                                     padding: '0.8rem',
@@ -224,6 +317,7 @@ const Contact = () => {
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 required
+                                disabled={isSubmitting}
                                 style={{
                                     width: '100%',
                                     padding: '0.8rem',
@@ -241,38 +335,40 @@ const Contact = () => {
 
                             <button
                                 type="submit"
+                                disabled={isSubmitting}
                                 style={{
                                     marginTop: '1rem',
                                     padding: '0.9rem',
-                                    background: '#fff',
+                                    background: isSubmitting ? 'rgba(255,255,255,0.5)' : '#fff',
                                     border: 'none',
                                     borderRadius: '8px',
                                     color: '#000',
                                     fontSize: '0.9rem',
                                     fontWeight: '600',
-                                    cursor: 'pointer',
+                                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
                                     transition: 'all 0.3s ease'
                                 }}
-                                onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.9)'}
-                                onMouseLeave={(e) => e.target.style.background = '#fff'}
+                                onMouseEnter={(e) => !isSubmitting && (e.target.style.background = 'rgba(255,255,255,0.9)')}
+                                onMouseLeave={(e) => !isSubmitting && (e.target.style.background = '#fff')}
                             >
-                                Gönder
+                                {isSubmitting ? 'Gönderiliyor...' : 'Gönder'}
                             </button>
 
                             <button
                                 type="button"
                                 onClick={() => setShowForm(false)}
+                                disabled={isSubmitting}
                                 style={{
                                     padding: '0.6rem',
                                     background: 'transparent',
                                     border: 'none',
                                     color: 'rgba(255,255,255,0.5)',
                                     fontSize: '0.8rem',
-                                    cursor: 'pointer',
+                                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
                                     transition: 'all 0.3s ease'
                                 }}
-                                onMouseEnter={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}
-                                onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}
+                                onMouseEnter={(e) => !isSubmitting && (e.target.style.color = 'rgba(255,255,255,0.8)')}
+                                onMouseLeave={(e) => !isSubmitting && (e.target.style.color = 'rgba(255,255,255,0.5)')}
                             >
                                 İptal
                             </button>
@@ -281,7 +377,6 @@ const Contact = () => {
                 )}
             </AnimatePresence>
 
-            {/* CSS Animations */}
             <style>{`
                 @keyframes gradientShift {
                     0%, 100% { background-position: 0% 50%; }

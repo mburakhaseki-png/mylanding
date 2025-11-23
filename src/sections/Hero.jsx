@@ -18,6 +18,9 @@ const Hero = () => {
     }, []);
 
     useEffect(() => {
+        // Only enable mouse tracking on desktop
+        if (isMobile) return;
+
         const handleMouseMove = (e) => {
             const { clientX, clientY } = e;
             const centerX = window.innerWidth / 2;
@@ -28,7 +31,7 @@ const Hero = () => {
 
         window.addEventListener('mousemove', handleMouseMove);
         return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, [mouseX, mouseY]);
+    }, [mouseX, mouseY, isMobile]);
 
     // Parallax transforms for blobs
     const x1 = useTransform(x, (value) => value * 0.2);
@@ -83,8 +86,8 @@ const Hero = () => {
                     height: '40vw',
                     background: 'radial-gradient(circle, #00ff9d 0%, transparent 70%)',
                     borderRadius: '50%',
-                    x: x1,
-                    y: y1,
+                    x: isMobile ? 0 : x1,
+                    y: isMobile ? 0 : y1,
                 }} animate={{
                     scale: [1, 1.2, 1],
                     opacity: [0.4, 0.6, 0.4]
@@ -102,8 +105,8 @@ const Hero = () => {
                     height: '50vw',
                     background: 'radial-gradient(circle, #9d00ff 0%, transparent 70%)',
                     borderRadius: '50%',
-                    x: x2,
-                    y: y2,
+                    x: isMobile ? 0 : x2,
+                    y: isMobile ? 0 : y2,
                 }} animate={{
                     scale: [1.2, 1, 1.2],
                     opacity: [0.3, 0.5, 0.3]
@@ -122,8 +125,8 @@ const Hero = () => {
                     height: '35vw',
                     background: 'radial-gradient(circle, #ff0055 0%, transparent 70%)',
                     borderRadius: '50%',
-                    x: x3,
-                    y: y3,
+                    x: isMobile ? 0 : x3,
+                    y: isMobile ? 0 : y3,
                 }} animate={{
                     scale: [0.8, 1.1, 0.8],
                     opacity: [0.2, 0.4, 0.2]
@@ -140,9 +143,10 @@ const Hero = () => {
                     position: 'absolute',
                     inset: 0,
                     zIndex: 1,
-                    touchAction: 'none' // Prevent scrolling when touching the scene
+                    touchAction: isMobile ? 'auto' : 'none', // Allow scrolling on mobile
+                    pointerEvents: isMobile ? 'none' : 'auto' // Disable interaction on mobile
                 }}
-                onTouchMove={(e) => e.stopPropagation()} // Stop propagation to prevent scroll
+                onTouchMove={isMobile ? undefined : (e) => e.stopPropagation()}
             >
                 <Scene />
             </div>
