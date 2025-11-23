@@ -139,19 +139,20 @@ const Hero = () => {
                 </div>
             )}
 
-            {/* 3D Scene - Touch handling wrapper */}
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    zIndex: 1,
-                    touchAction: isMobile ? 'auto' : 'none', // Allow scrolling on mobile
-                    pointerEvents: isMobile ? 'none' : 'auto' // Disable interaction on mobile
-                }}
-                onTouchMove={isMobile ? undefined : (e) => e.stopPropagation()}
-            >
-                <Scene />
-            </div>
+            {/* 3D Scene - Desktop only */}
+            {!isMobile && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        inset: 0,
+                        zIndex: 1,
+                        touchAction: 'none'
+                    }}
+                    onTouchMove={(e) => e.stopPropagation()}
+                >
+                    <Scene />
+                </div>
+            )}
 
             {/* Content */}
             {isMobile ? (
