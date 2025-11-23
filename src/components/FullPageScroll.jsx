@@ -14,12 +14,20 @@ import HowItWorks from '../sections/HowItWorks';
 const FullPageScroll = () => {
     const [activeSection, setActiveSection] = useState(0);
     const [horizontalIndex, setHorizontalIndex] = useState(0);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     // Refs for state access in event listeners without re-binding
     const activeSectionRef = useRef(0);
     const horizontalIndexRef = useRef(0);
     const isScrolling = useRef(false);
     const touchStartY = useRef(0);
+
+    // Detect mobile
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Sync refs with state
     useEffect(() => {
@@ -106,6 +114,24 @@ const FullPageScroll = () => {
     };
 
     useEffect(() => {
+        // Only enable snap-scroll on desktop
+        if (isMobile) {
+            // On mobile, just handle navigation events
+            const onNavigate = (e) => {
+                const targetSection = e.detail.section;
+                const element = document.getElementById(`section-${targetSection}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            };
+
+            window.addEventListener('navigateToSection', onNavigate);
+            return () => {
+                window.removeEventListener('navigateToSection', onNavigate);
+            };
+        }
+
+        // Desktop: snap-scroll behavior
         const onWheel = (e) => {
             if (Math.abs(e.deltaY) > 30) {
                 handleScroll(e.deltaY > 0 ? 'down' : 'up');
@@ -143,97 +169,137 @@ const FullPageScroll = () => {
             window.removeEventListener('touchmove', onTouchMove);
             window.removeEventListener('navigateToSection', onNavigate);
         };
-    }, []);
+    }, [isMobile]);
 
     return (
-        <div style={{ height: '100vh', overflow: 'hidden', background: '#050a08' }}>
+        <div style={{
+            height: '100vh',
+            overflow: isMobile ? 'auto' : 'hidden',
+            background: '#050a08',
+            scrollSnapType: isMobile ? 'none' : 'y mandatory'
+        }}>
             {/* Conditionally render Navbar */}
-            {slides[activeSection].type !== 'horizontal' && <Navbar />}
+            {!isMobile && slides[activeSection].type !== 'horizontal' && <Navbar />}
+            {isMobile && <Navbar />}
 
-            <motion.div
-                animate={{ y: `-${activeSection * 100}vh` }}
-                transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-                style={{ height: '100%' }}
-            >
-                {slides.map((slide, index) => (
-                    <div key={index} style={{ height: '100vh', width: '100%', position: 'relative' }}>
-                        {slide.type === 'vertical' ? (
-                            slide.content
-                        ) : (
-                            <div style={{ height: '100%', width: '100%', overflow: 'hidden', position: 'relative' }}>
-                                <motion.div
-                                    animate={{ x: `-${horizontalIndex * 100}vw` }}
-                                    transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-                                    style={{
-                                        display: 'flex',
-                                        height: '100%'
-                                    }}
-                                >
+            {isMobile ? (
+                // Mobile: Normal scroll
+                <div>
+                    {slides.map((slide, index) => (
+                        <div
+                            key={index}
+                            id={`section-${index}`}
+                            style={{
+                                minHeight: '100vh',
+                                width: '100%',
+                                position: 'relative'
+                            }}
+                        >
+                            {slide.type === 'vertical' ? (
+                                slide.content
+                            ) : (
+                                // Horizontal slides on mobile: show all vertically
+                                <div>
                                     {slide.items.map((item, i) => (
-                                        <div key={i} style={{ width: '100vw', height: '100%', flexShrink: 0 }}>
+                                        <div key={i} style={{ minHeight: '100vh', width: '100%' }}>
                                             {item}
                                         </div>
                                     ))}
-                                </motion.div>
-
-                                <div style={{
-                                    position: 'absolute',
-                                    bottom: '2rem',
-                                    left: '50%',
-                                    transform: 'translateX(-50%)',
-                                    display: 'flex',
-                                    gap: '1rem',
-                                    zIndex: 10
-                                }}>
-                                    {slide.items.map((_, i) => (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                width: '40px',
-                                                height: '4px',
-                                                background: horizontalIndex === i ? '#fff' : 'rgba(255,255,255,0.2)',
-                                                transition: 'all 0.3s ease'
-                                            }}
-                                        />
-                                    ))}
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </motion.div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                // Desktop: Snap scroll
+                <motion.div
+                    animate={{ y: `-${activeSection * 100}vh` }}
+                    transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                    style={{ height: '100%' }}
+                >
+                    {slides.map((slide, index) => (
+                        <div key={index} style={{ height: '100vh', width: '100%', position: 'relative' }}>
+                            {slide.type === 'vertical' ? (
+                                slide.content
+                            ) : (
+                                <div style={{ height: '100%', width: '100%', overflow: 'hidden', position: 'relative' }}>
+                                    <motion.div
+                                        animate={{ x: `-${horizontalIndex * 100}vw` }}
+                                        transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                                        style={{
+                                            display: 'flex',
+                                            height: '100%'
+                                        }}
+                                    >
+                                        {slide.items.map((item, i) => (
+                                            <div key={i} style={{ width: '100vw', height: '100%', flexShrink: 0 }}>
+                                                {item}
+                                            </div>
+                                        ))}
+                                    </motion.div>
 
-            <div style={{
-                position: 'fixed',
-                right: '2rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-                zIndex: 100
-            }}>
-                {slides.map((slide, index) => (
-                    <div
-                        key={index}
-                        onClick={() => {
-                            if (!isScrolling.current) {
-                                setActiveSection(index);
-                                if (slide.type === 'horizontal') setHorizontalIndex(0);
-                            }
-                        }}
-                        style={{
-                            width: '10px',
-                            height: '10px',
-                            borderRadius: '50%',
-                            background: activeSection === index ? '#00ff9d' : 'rgba(255,255,255,0.2)',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            transform: activeSection === index ? 'scale(1.5)' : 'scale(1)'
-                        }}
-                    />
-                ))}
-            </div>
+                                    <div style={{
+                                        position: 'absolute',
+                                        bottom: '2rem',
+                                        left: '50%',
+                                        transform: 'translateX(-50%)',
+                                        display: 'flex',
+                                        gap: '1rem',
+                                        zIndex: 10
+                                    }}>
+                                        {slide.items.map((_, i) => (
+                                            <div
+                                                key={i}
+                                                style={{
+                                                    width: '40px',
+                                                    height: '4px',
+                                                    background: horizontalIndex === i ? '#fff' : 'rgba(255,255,255,0.2)',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </motion.div>
+            )}
+
+            {/* Desktop navigation dots */}
+            {!isMobile && (
+                <div style={{
+                    position: 'fixed',
+                    right: '2rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem',
+                    zIndex: 100
+                }}>
+                    {slides.map((slide, index) => (
+                        <div
+                            key={index}
+                            onClick={() => {
+                                if (!isScrolling.current) {
+                                    setActiveSection(index);
+                                    if (slide.type === 'horizontal') setHorizontalIndex(0);
+                                }
+                            }}
+                            style={{
+                                width: '10px',
+                                height: '10px',
+                                borderRadius: '50%',
+                                background: activeSection === index ? '#00ff9d' : 'rgba(255,255,255,0.2)',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                transform: activeSection === index ? 'scale(1.5)' : 'scale(1)'
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

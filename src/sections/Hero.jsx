@@ -67,75 +67,77 @@ const Hero = () => {
                 mixBlendMode: 'overlay'
             }} />
 
-            {/* Gradient Blobs */}
-            <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                filter: 'blur(100px)',
-                zIndex: 0,
-                opacity: 0.6
-            }}>
-                <motion.div style={{
+            {/* Gradient Blobs - Desktop only */}
+            {!isMobile && (
+                <div style={{
                     position: 'absolute',
-                    top: '20%',
-                    left: '20%',
-                    width: '40vw',
-                    height: '40vw',
-                    background: 'radial-gradient(circle, #00ff9d 0%, transparent 70%)',
-                    borderRadius: '50%',
-                    x: isMobile ? 0 : x1,
-                    y: isMobile ? 0 : y1,
-                }} animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.4, 0.6, 0.4]
-                }} transition={{
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                }} />
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    filter: 'blur(100px)',
+                    zIndex: 0,
+                    opacity: 0.6
+                }}>
+                    <motion.div style={{
+                        position: 'absolute',
+                        top: '20%',
+                        left: '20%',
+                        width: '40vw',
+                        height: '40vw',
+                        background: 'radial-gradient(circle, #00ff9d 0%, transparent 70%)',
+                        borderRadius: '50%',
+                        x: isMobile ? 0 : x1,
+                        y: isMobile ? 0 : y1,
+                    }} animate={{
+                        scale: [1, 1.2, 1],
+                        opacity: [0.4, 0.6, 0.4]
+                    }} transition={{
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }} />
 
-                <motion.div style={{
-                    position: 'absolute',
-                    bottom: '10%',
-                    right: '10%',
-                    width: '50vw',
-                    height: '50vw',
-                    background: 'radial-gradient(circle, #9d00ff 0%, transparent 70%)',
-                    borderRadius: '50%',
-                    x: isMobile ? 0 : x2,
-                    y: isMobile ? 0 : y2,
-                }} animate={{
-                    scale: [1.2, 1, 1.2],
-                    opacity: [0.3, 0.5, 0.3]
-                }} transition={{
-                    duration: 10,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                }} />
+                    <motion.div style={{
+                        position: 'absolute',
+                        bottom: '10%',
+                        right: '10%',
+                        width: '50vw',
+                        height: '50vw',
+                        background: 'radial-gradient(circle, #9d00ff 0%, transparent 70%)',
+                        borderRadius: '50%',
+                        x: isMobile ? 0 : x2,
+                        y: isMobile ? 0 : y2,
+                    }} animate={{
+                        scale: [1.2, 1, 1.2],
+                        opacity: [0.3, 0.5, 0.3]
+                    }} transition={{
+                        duration: 10,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }} />
 
-                <motion.div style={{
-                    position: 'absolute',
-                    top: '40%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '35vw',
-                    height: '35vw',
-                    background: 'radial-gradient(circle, #ff0055 0%, transparent 70%)',
-                    borderRadius: '50%',
-                    x: isMobile ? 0 : x3,
-                    y: isMobile ? 0 : y3,
-                }} animate={{
-                    scale: [0.8, 1.1, 0.8],
-                    opacity: [0.2, 0.4, 0.2]
-                }} transition={{
-                    duration: 12,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                }} />
-            </div>
+                    <motion.div style={{
+                        position: 'absolute',
+                        top: '40%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '35vw',
+                        height: '35vw',
+                        background: 'radial-gradient(circle, #ff0055 0%, transparent 70%)',
+                        borderRadius: '50%',
+                        x: isMobile ? 0 : x3,
+                        y: isMobile ? 0 : y3,
+                    }} animate={{
+                        scale: [0.8, 1.1, 0.8],
+                        opacity: [0.2, 0.4, 0.2]
+                    }} transition={{
+                        duration: 12,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }} />
+                </div>
+            )}
 
             {/* 3D Scene - Touch handling wrapper */}
             <div
