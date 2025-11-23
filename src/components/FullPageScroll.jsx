@@ -300,6 +300,39 @@ const FullPageScroll = () => {
                     ))}
                 </div>
             )}
+
+            {/* Scroll to Top Button - Desktop Only */}
+            {!isMobile && activeSection > 0 && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setActiveSection(0)}
+                    style={{
+                        position: 'fixed',
+                        bottom: '2rem',
+                        right: '2rem',
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '50%',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        zIndex: 100,
+                        color: '#fff'
+                    }}
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 15l-6-6-6 6" />
+                    </svg>
+                </motion.div>
+            )}
         </div>
     );
 };

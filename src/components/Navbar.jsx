@@ -39,7 +39,15 @@ const Navbar = () => {
                 color: 'var(--color-text)'
             }}
         >
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '-0.05em' }}>
+            <div
+                onClick={() => window.location.reload()}
+                style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 'bold',
+                    letterSpacing: '-0.05em',
+                    cursor: 'pointer'
+                }}
+            >
                 HASEKUI
             </div>
             {!isMobile && (
